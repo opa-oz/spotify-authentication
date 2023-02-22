@@ -13,6 +13,7 @@ state_key = 'spotify_auth_state'
 scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private'
 state_length = 16
 redirect_uri = 'http://localhost:8888/callback'
+spotify_token_url = 'https://accounts.spotify.com/api/token'
 
 
 @app.route('/')
@@ -71,9 +72,9 @@ def callback():
         'code': code
     }
 
-    token_response = requests.post('https://accounts.spotify.com/api/token', data=data, headers=auth_headers)
+    token_response = requests.post(spotify_token_url, data=data, headers=auth_headers)
     if token_response.status_code != 200:
-        return {'code': token_response.status_code, 'response': token_response.json()}
+        return {'status_code': token_response.status_code, 'message': token_response.json()}
     access_token = token_response.json().get('access_token')
     refresh_token = token_response.json().get('refresh_token')
 
@@ -83,3 +84,24 @@ def callback():
     #     return {'error': access_api.status_code, 'message': access_api.json()}
     res = make_response(redirect(f'tokens?access_token={access_token}&refresh_token={refresh_token}'))
     return res
+
+@app.route('/refresh_token')
+def refresh_token():
+    refresh_token = request.args.get('refresh_token')
+    if not refresh_token:
+        return {'error': 400, 'message': 'no refresh_token provided'}
+    auth_client = f'{client_id}:{client_secret}'
+    auth_encode = 'Basic ' + base64.b64encode(auth_client.encode()).decode()
+    auth_headers = {
+        'Authorization': auth_encode,
+    }
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+    }
+
+    refresh_token_response = requests.post(spotify_token_url, data=data, headers=auth_headers)
+    if refresh_token_response.status_code != 200:
+        return {'status_code': refresh_token_response.status_code, 'message': refresh_token_response.json()}
+
+    return {'access_token': refresh_token_response.json().get('access_token')}
