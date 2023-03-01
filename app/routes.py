@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 import requests
 
 from app import app
+
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -91,6 +92,7 @@ def callback():
     #     return {'error': access_api.status_code, 'message': access_api.json()}
     res = make_response(redirect(f'tokens?access_token={access_token}&refresh_token={refresh_token}'))
     return res
+
 
 @app.route('/refresh_token')
 @cross_origin()
