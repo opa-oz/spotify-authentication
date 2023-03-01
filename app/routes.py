@@ -1,11 +1,14 @@
 import random
 import os
 import base64
-from flask import request, redirect, make_response, Response
+from flask import request, redirect, make_response, Response, render_template
+from flask_cors import CORS, cross_origin
 from urllib.parse import urlencode
 import requests
 
 from app import app
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 client_id = os.environ.get('client_id')
 client_secret = os.environ.get('client_secret')
@@ -19,8 +22,9 @@ spotify_token_url = 'https://accounts.spotify.com/api/token'
 @app.route('/')
 @app.route('/index')
 @app.route('/ping')
+@cross_origin()
 def index():
-    return 'server running'
+    return render_template('index.html')
 
 
 def generate_random_string(length=state_length):
@@ -29,12 +33,14 @@ def generate_random_string(length=state_length):
 
 
 @app.route('/tokens')
+@cross_origin()
 def show_tokens():
     args = request.args
     return {'access_token': args.get('access_token'), 'refresh_token': args.get('refresh_token')}
 
 
 @app.route('/login')
+@cross_origin()
 def login():
     state = generate_random_string(state_length)
     query_params = urlencode({'response_type': 'code',
@@ -50,6 +56,7 @@ def login():
 
 
 @app.route('/callback')
+@cross_origin()
 def callback():
     query_params = request.args
     code = query_params.get('code')
@@ -86,6 +93,7 @@ def callback():
     return res
 
 @app.route('/refresh_token')
+@cross_origin()
 def refresh_token():
     refresh_token = request.args.get('refresh_token')
     if not refresh_token:
