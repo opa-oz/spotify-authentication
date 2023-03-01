@@ -7,3 +7,5 @@ hosts for all urls must match to share cookies
 go to /, click 'Log in with Spotify', get your tokens, enjoy
 or go straight to /login
 your app should have privileges to modify playlist
+
+python version of authorization_code of https://github.com/spotify/web-api-examples
