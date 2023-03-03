@@ -1,16 +1,15 @@
 FROM python:3.8.5
 
-RUN mkdir /code
+WORKDIR /code
 
 COPY requirements.txt /code
-COPY .flaskenv /code
-
 RUN pip install -r /code/requirements.txt
 
+COPY .flaskenv /code
+
 COPY . /code
-WORKDIR /code
 EXPOSE 8888
 
-CMD ["gunicorn", "-b", "localhost:8888", "spotify_auth:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8888", "spotify_auth:app"]
 
 

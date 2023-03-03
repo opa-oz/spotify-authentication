@@ -11,12 +11,13 @@ from app import app
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-client_id = os.environ.get('client_id')
-client_secret = os.environ.get('client_secret')
+client_id = os.environ.get('CLIENT_ID')
+client_secret = os.environ.get('CLIENT_SECRET')
+callback_url = os.environ.get('CALLBACK_URL')
 state_key = 'spotify_auth_state'
 scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private'
 state_length = 16
-redirect_uri = 'http://localhost:8888/callback'
+redirect_uri = f'{callback_url}/callback'
 spotify_token_url = 'https://accounts.spotify.com/api/token'
 
 
@@ -66,8 +67,6 @@ def callback():
     print({'state': state, 'stored_state': stored_state})
     if not state or state != stored_state:
         return Response('state mismatch', status=400, )
-    # resp = make_response('http://localhost:8888/callback')
-    # resp.delete_cookie('lol')
 
     auth_client = f'{client_id}:{client_secret}'
     auth_encode = 'Basic ' + base64.b64encode(auth_client.encode()).decode()
@@ -86,10 +85,6 @@ def callback():
     access_token = token_response.json().get('access_token')
     refresh_token = token_response.json().get('refresh_token')
 
-    # headers = {'Authorization': f'Bearer {access_token}'}
-    # access_api = requests.get('https://api.spotify.com/v1/me', headers=headers)
-    # if access_api.status_code != 200:
-    #     return {'error': access_api.status_code, 'message': access_api.json()}
     res = make_response(redirect(f'tokens?access_token={access_token}&refresh_token={refresh_token}'))
     return res
 
