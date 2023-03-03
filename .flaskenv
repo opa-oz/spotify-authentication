@@ -1,0 +1,3 @@
+FLASK_APP=spotify_auth.py
+FLASK_DEBUG=1
+FLASK_RUN_PORT=8888
